@@ -7,6 +7,7 @@ import Card from './Card';
 function App() {
 
   const [res, setRes] = useState(null);
+  const [graph, setGraph] = useState(null);
   const [formData, setFormData] = useState({
     pregnancies: Number,
     glucose: Number,
@@ -28,7 +29,17 @@ function App() {
     try {
       console.log(formData);
       var response = await axios.post('https://bct-diabetes-prediction-api.sayan.org.in/predict/', formData);
+      var hist = await axios.get('https://bct-diabetes-prediction-api.sayan.org.in/get-histogram/', { responseType: 'arraybuffer' }).then(res => {
+        let blob = new Blob(
+          [res.data],
+          { type: response.headers['content-type'] }
+        )
+        let image = URL.createObjectURL(blob)
+        return image
+      });
+      console.log(graph);
       console.log(response);
+      setGraph(hist);
       setRes(response);
 
     } catch (error) {
@@ -36,51 +47,60 @@ function App() {
     }
   };
 
-
+  const labelStyle = "input-group ml-3 lg:w-1/3 m-3 lg:mx-auto"
+  const inputStyle = "input input-bordered lg:w-2/3"
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className=" px-4 pt-8">
-        <h1 className="mb-8 text-center text-4xl font-bold text-gray-900">DIABETES PREDICTOR</h1>
-        <form onSubmit={handleSubmit} method="post">
+    <div className="">
+      <div className="">
+        <div className="flex flex-col just">
+          <h1 className="text-center text-3xl font-bold text-slate-50 m-5 p-6">DIABETES PREDICTOR</h1>
+        </div>
 
-          <div className="form-control grid grid-rows-1">
-            <label className="input-group m-3">
-              <span>PREGA</span>
-              <input type="number" placeholder="Enter the number of pregnancies" name="pregnancies" onChange={handleChange} className="input input-bordered " />
-            </label>
-            <label className="input-group m-3">
-              <span>GLUCO</span>
-              <input type="number" placeholder="Enter the glucose level" name="glucose" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <label className="input-group m-3">
-              <span>BP</span>
-              <input type="number" placeholder="Enter the blood pressure" name="blood_pressure" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <label className="input-group m-3">
-              <span>SKIN THICKNESS</span>
-              <input type="number" placeholder="Enter the skin thickness" name="skin_thickness" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <label className="input-group m-3">
-              <span>INSULIN</span>
-              <input type="number" placeholder="Enter the insulin level" name="insulin" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <label className="input-group m-3">
-              <span>BMI</span>
-              <input type="number" placeholder="Enter the BMI" name="bmi" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <label className="input-group m-3">
-              <span>Diabetes</span>
-              <input type="number" placeholder="Enter the Diabetes" name="diabetes_pedigree_function" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <label className="input-group m-3">
-              <span>AGE</span>
-              <input type="number" placeholder="Enter the Age" name="age" onChange={handleChange} className="input input-bordered" />
-            </label>
-            <button type="submit" className="ml-3 mb-5 btn btn-accent btn-outline w-24">Submit</button>
+        <form onSubmit={handleSubmit} method="post">
+          <div>
+            <div className="flex flex-col justify-center" >
+              <label className={labelStyle}>
+                <span>pr</span>
+                <input type="number" placeholder="Enter the number of pregnancies" name="pregnancies" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>gl</span>
+                <input type="number" placeholder="Enter the glucose level" name="glucose" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>bp</span>
+                <input type="number" placeholder="Enter the blood pressure" name="blood_pressure" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>st</span>
+                <input type="number" placeholder="Enter the skin thickness" name="skin_thickness" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>is</span>
+                <input type="number" placeholder="Enter the insulin level" name="insulin" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>bm</span>
+                <input type="number" placeholder="Enter the BMI" name="bmi" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>d</span>
+                <input type="number" placeholder="Enter the Diabetes" name="diabetes_pedigree_function" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+              <label className={labelStyle}>
+                <span>ag</span>
+                <input type="number" placeholder="Enter the Age" name="age" onChange={handleChange} className={inputStyle} autocomplete="off" />
+              </label>
+            </div>
+
+            <div class="flex justify-center">
+              <button type="submit" class="btn btn-accent btn-outline w-24">Submit</button>
+            </div>
           </div>
         </form>
         <div>
           {res && <Card data={res} />}
+          {graph && <img src={graph} width={550} height={550} />}
         </div>
       </div>
 
